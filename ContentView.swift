@@ -11,54 +11,78 @@ struct ContentView: View {
     @State private var selectedReminderTime: Date = Date() // Default reminder time
     
     var body: some View {
-        NavigationView {
-            VStack {
-                // Habit List
-                List {
-                    ForEach(habits) { habit in
-                        HStack {
-                            Text(habit.name)
-                                .font(.body)
-                            Spacer()
-                            Image(systemName: habit.isCompleted ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(habit.isCompleted ? .green : .gray)
-                                .onTapGesture {
-                                    toggleCompletion(for: habit)
-                                }
-                        }
-                    }
-                    .onDelete(perform: deleteHabit)
-                }
-                
-                // Habit Entry & Reminder Time Section
+        TabView {
+            // Habit Tracker View (First Tab)
+            NavigationView {
                 VStack {
-                    TextField("Enter new habit", text: $newHabit)
-                        .padding()
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    // Habit List
+                    List {
+                        ForEach(habits) { habit in
+                            HStack {
+                                Text(habit.name)
+                                    .font(.body)
+                                Spacer()
+                                Image(systemName: habit.isCompleted ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(habit.isCompleted ? .green : .gray)
+                                    .onTapGesture {
+                                        toggleCompletion(for: habit)
+                                    }
+                            }
+                        }
+                        .onDelete(perform: deleteHabit)
+                    }
                     
-                    // Date picker for setting reminder time
-                    DatePicker("Set Reminder Time", selection: $selectedReminderTime, displayedComponents: .hourAndMinute)
-                        .padding()
-                        .labelsHidden()
-                        .datePickerStyle(CompactDatePickerStyle()) // Simplified date picker style
+                    // Habit Entry & Reminder Time Section
+                    VStack {
+                        TextField("Enter new habit", text: $newHabit)
+                            .padding()
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        
+                        // Date picker for setting reminder time
+                        DatePicker("Set Reminder Time", selection: $selectedReminderTime, displayedComponents: .hourAndMinute)
+                            .padding()
+                            .labelsHidden()
+                            .datePickerStyle(CompactDatePickerStyle()) // Simplified date picker style
+                    }
+                    .padding()
+                    
+                    // Add Habit Button
+                    Button(action: addHabit) {
+                        Text("Add Habit")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    .padding()
+                    
                 }
-                .padding()
-                
-                // Add Habit Button
-                Button(action: addHabit) {
-                    Text("Add Habit")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                .navigationTitle("Habit Tracker")
+                .toolbar {
+                    EditButton()
                 }
-                .padding()
             }
-            .navigationTitle("Habit Tracker")
-            .toolbar {
-                EditButton()
+            .tabItem {
+                Label("Habits", systemImage: "list.bullet")
             }
+            
+            // Profile View (Second Tab)
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle")
+                }
+            
+            // Statistics and Settings placeholders
+            Text("Statistics Content")
+                .tabItem {
+                    Label("Statistics", systemImage: "app.fill")
+                }
+            
+            Text("Settings Content")
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
         }
         .onAppear {
             requestNotificationPermission() // Request notification permission
@@ -68,10 +92,18 @@ struct ContentView: View {
     
     private func addHabit() {
         guard !newHabit.isEmpty else { return }
-        let newHabitObject = Habit(name: newHabit, reminderTime: selectedReminderTime) // Include selected reminder time
+        
+        // Create new habit object with the name and reminder time
+        let newHabitObject = Habit(name: newHabit, reminderTime: selectedReminderTime)
+        
+        // Append the new habit to the habits list
         habits.append(newHabitObject)
-        scheduleReminder(for: newHabitObject) // Schedule reminder when new habit is added
-        newHabit = "" // Reset the text field after adding habit
+        
+        // Schedule reminder when new habit is added
+        scheduleReminder(for: newHabitObject)
+        
+        // Reset the text field after adding habit
+        newHabit = ""
     }
     
     private func toggleCompletion(for habit: Habit) {
