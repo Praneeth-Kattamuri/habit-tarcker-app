@@ -17,8 +17,8 @@ class NotificationManager {
         content.body = "Don't forget to complete your habit: \(habit.name)"
         content.sound = .default
         
-        let triggerDate = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: habit.reminderTime)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
+        let triggerDate = Calendar.current.dateComponents([.hour, .minute], from: habit.reminderTime)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: true)
         
         let request = UNNotificationRequest(identifier: habit.id.uuidString, content: content, trigger: trigger)
         

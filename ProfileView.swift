@@ -1,12 +1,10 @@
 import SwiftUI
 
 struct ProfileView: View {
-    // Hardcoded profile data
     let userProfile = UserProfile(name: "John Doe", email: "johndoe@example.com", age: 30, bio: "Software Developer and Habit Tracker Enthusiast.")
     
     var body: some View {
         VStack {
-            // User Details
             Text(userProfile.name)
                 .font(.title)
                 .fontWeight(.bold)
@@ -34,7 +32,6 @@ struct ProfileView: View {
     }
 }
 
-// Model for User Profile
 struct UserProfile {
     var name: String
     var email: String

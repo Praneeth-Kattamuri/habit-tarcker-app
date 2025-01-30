@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HabitEntryView: View {
+    @ObservedObject var habitStore: HabitStore
     @Binding var newHabit: String
     @Binding var selectedReminderTime: Date
     
@@ -30,7 +31,7 @@ struct HabitEntryView: View {
     private func addHabit() {
         guard !newHabit.isEmpty else { return }
         let newHabitObject = Habit(name: newHabit, reminderTime: selectedReminderTime)
-        HabitStore.addHabit(newHabitObject)
+        habitStore.addHabit(newHabitObject)
         NotificationManager.scheduleReminder(for: newHabitObject)
         newHabit = ""
     }

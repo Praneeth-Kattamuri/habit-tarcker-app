@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct HabitListView: View {
-    @Binding var habits: [Habit]
-    @Binding var newHabit: String
-    @Binding var selectedReminderTime: Date
+    @ObservedObject var habitStore: HabitStore
+    @State private var newHabit = ""
+    @State private var selectedReminderTime = Date()
     
     var body: some View {
         NavigationView {
             VStack {
                 List {
-                    ForEach(habits) { habit in
+                    ForEach(habitStore.habits) { habit in
                         HStack {
                             Text(habit.name)
                                 .font(.body)
@@ -17,14 +17,14 @@ struct HabitListView: View {
                             Image(systemName: habit.isCompleted ? "checkmark.circle.fill" : "circle")
                                 .foregroundColor(habit.isCompleted ? .green : .gray)
                                 .onTapGesture {
-                                    toggleCompletion(for: habit)
+                                    habitStore.toggleCompletion(for: habit)
                                 }
                         }
                     }
-                    .onDelete(perform: deleteHabit)
+                    .onDelete(perform: habitStore.deleteHabit)
                 }
                 
-                HabitEntryView(newHabit: $newHabit, selectedReminderTime: $selectedReminderTime)
+                HabitEntryView(habitStore: habitStore, newHabit: $newHabit, selectedReminderTime: $selectedReminderTime)
                     .padding()
             }
             .navigationTitle("Habit Tracker")
@@ -32,17 +32,5 @@ struct HabitListView: View {
                 EditButton()
             }
         }
-    }
-    
-    private func toggleCompletion(for habit: Habit) {
-        if let index = habits.firstIndex(where: { $0.id == habit.id }) {
-            habits[index].isCompleted.toggle()
-            habits[index].lastUpdated = Date()
-            NotificationManager.scheduleReminder(for: habits[index])
-        }
-    }
-    
-    private func deleteHabit(at offsets: IndexSet) {
-        habits.remove(atOffsets: offsets)
     }
 }
